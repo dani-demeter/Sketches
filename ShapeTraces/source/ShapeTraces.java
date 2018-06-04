@@ -27,19 +27,28 @@ float p1 = 2;
 float p2 = 3;
 
 float cStep = 0;
-Button b1 = new Button(50, 50, 50, 50, "hello", 0);
-ButtonCircle b2 = new ButtonCircle(50, 150, 50, 50, "hello", 0);
-
-int shape = 1;
+ArrayList<Button> sqButtons = new ArrayList<Button>();
+int shape = 0;
 public void setup(){
   
   //noLoop();
   background(28, 29, 32);
   
+  Button b1 = new Button(25, 25, 30, 30, 0, 0, 0);
+  Button b2 = new Button(40, 80, 30, 30, 0, 1, 0);
+  sqButtons.add(b1);
+  sqButtons.add(b2);
+  for(int i=1; i<6; i++){
+    for(int j=1; j<6; j++){
+      Button tmp = new Button(i*15 + 25, j*15+500, 10, 10, 1, i, j);
+      sqButtons.add(tmp);
+    }
+  }
 }
 public void mousePressed(){
-  b1.mousePressed();
-  b2.mousePressed();
+  for(int i=0; i<sqButtons.size(); i++){
+    sqButtons.get(i).mousePressed();
+  }
 }
 public float fx(float t, float r1){
   t %= 2*PI;
@@ -100,28 +109,33 @@ public void draw(){
     drawMyLine(fx(p1*t, r1), fy(p1*t, r1), fx(p2*t, r2), fy(p2*t, r2));
     cStep++;
   }
-  b1.checkHover(mouseX, mouseY);
-  b1.update();
-  b2.checkHover(mouseX, mouseY);
-  b2.update();
+  for(int i=0; i<sqButtons.size(); i++){
+    sqButtons.get(i).checkHover(mouseX, mouseY);
+    sqButtons.get(i).update();
+  }
 }
 
 
 class Button{
-  int myX, myY, myW, myH, myType;
-  String myText;
+  int myX, myY, myW, myH, myType, myValue1, myValue2;
   boolean isHovered = false;
-  public Button(int x, int y, int w, int h, String text, int type){
+  public Button(int x, int y, int w, int h, int type, int value1, int value2){
     myX = x;
     myY = y;
     myW = w;
     myH = h;
-    myText = text;
+    myValue1 = value1;
+    myValue2 = value2;
     myType = type;
   }
   public boolean checkHover(int mX, int mY){
-    isHovered = (mX >= myX && mX <= myX+myW && 
-      mY >= myY && mY <= myY+myH);
+    if(myType==0 && myValue1 == 1){
+      float distX = mX - myX;
+      float distY = mY - myY;
+      isHovered = (sqrt(sq(distX) + sq(distY)) < myW/2);
+    }else{
+      isHovered = (mX >= myX && mX <= myX+myW && mY >= myY && mY <= myY+myH);
+    }
     return isHovered;
   }
   public void update(){
@@ -130,56 +144,31 @@ class Button{
     }else{
       stroke(100,100,100);
     }
-    
     fill(100, 100, 100);
-    rect(myX, myY, myW, myH);
-  }
-  public void mousePressed(){
-    if(isHovered){
-      if(shape!=0){
-        shape = 0;
-        cStep = 0;
-        clear();
-      }
-    }
-  }
-}
-class ButtonCircle{
-  int myX, myY, myW, myH, myType;
-  String myText;
-  boolean isHovered = false;
-  public ButtonCircle(int x, int y, int w, int h, String text, int type){
-    myX = x;
-    myY = y;
-    myW = w;
-    myH = h;
-    myText = text;
-    myType = type;
-  }
-  public boolean checkHover(int mX, int mY){
-    float distX = mX - myX;
-    float distY = mY - myY;
-    isHovered = (sqrt(sq(distX) + sq(distY)) < myW/2);
-    return isHovered;
-  }
-  public void update(){
-    if(isHovered){
-      stroke(255, 255, 255);
+    if(myType==0 && myValue1 == 1){
+      ellipse(myX, myY, myW, myH);
     }else{
-      stroke(100,100,100);
+      rect(myX, myY, myW, myH);
     }
-    
-    fill(100, 100, 100);
-    ellipse(myX, myY, myW, myH);
   }
   public void mousePressed(){
     if(isHovered){
-      if(shape!=1){
-        shape = 1;
+      if(myType==0){
+        if(shape!=myValue1){
+          shape = myValue1;
+          cStep = 0;
+          clear();
+          background(28, 29, 32);
+        }
+      }else if(myType == 1){
+        p1 = myValue1;
+        p2 = myValue2;
         cStep = 0;
         clear();
+        background(28, 29, 32);
       }
     }
+    
   }
 }
   public void settings() {  size(1000, 600); }
